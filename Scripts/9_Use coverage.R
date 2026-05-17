@@ -72,3 +72,35 @@ assign(paste0('F',fut), Total)
 }
 
 res[[]] 
+
+#Forest and natural formation
+
+SSP <- '3' 
+year <- c('50', '70', '90')
+
+res <- list()
+
+for(Sp in 1: length(SSP)){
+  for(ye in 1: length(year)){
+    
+
+    fut <- paste0(SSP[Sp], '_', year[ye])
+    
+    shape <- paste0("Final_maps/Vectors/", fut, "noSavann.shp")
+    ca = vect(shape)
+    
+    Cov.ca <- mask(crop(Cov, ca), ca)
+    
+    #Total frequency
+    Freq <- as.data.frame(raster::freq(Cov.ca))
+    
+    #Land-use 
+    Forest.coverage <- (sum(Freq$count[Freq$value %in% c(1, 3, 4, 5, 6, 49, 11,12, 13, 32, 50)]) * (9/10000)) 
+    
+    assign(paste0('F',fut), Forest.coverage)
+    
+    
+  }
+}
+
+
