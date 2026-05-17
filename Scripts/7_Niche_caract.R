@@ -234,6 +234,38 @@ df <- do.call(rbind, results)
 write.csv(df, 'Other_files/NicheStats_Future.csv', row.names = T)
 
 
+# Future altitude evaluation ------------------------------------------------------------
+Elev <- rast('Other_files/others_wc/wc2.1_30s/wc2.1_30s_elev.tif')
+Elev <- as(Elev, "Raster")
+
+rcps <- c(2L , 3L)
+years <- c("50", "70", '90')
+
+results <- list()
+
+for (rc in 1: length(rcps)) {
+  for (ye in 1: length(years)) {
+    
+    fut <- paste0(SSP[Sp], '_', year[ye])
+    
+    shape <- paste0("Final_maps/Vectors/", fut, "noSavann.shp")
+    ca = vect(shape)
+    ca <- as(ca, "Spatial")
+
+    Elev.ca <- terra::mask(crop(Elev, ca), ca)
+    
+    # Statistical values
+    Elevation_mean <- as.data.frame(raster::cellStats(x = Elev.ca, stat = mean))
+    Elevation_sd <- as.data.frame(raster::cellStats(x = Elev.ca, stat = sd))
+    names(Elevation_sd) <- 'sd'
+    
+    Elevation_mean[, 2] <- Elevation_sd$sd
+    names(Elevation_mean) <- c('Mean', 'Sd')
+    
+    write.csv(Elevation_mean, paste0('Other_files/Elevation',  fut, '.csv'), row.names = T)
+    }
+  }
+
 # Use coverage ------------------------------------------------------------
 
 Cov <- raster('Other_files/MapBiomas/bosque_coverage_2022.tif')
